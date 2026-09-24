@@ -11,9 +11,11 @@ app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static('Admission_Documents_Upload'));
 
-// Local MongoDB Connection (School DB)
-mongoose.connect('mongodb://127.0.0.1:27017/school_db')
-  .then(() => console.log('MongoDB Connected to school_db!'))
+// MongoDB Connection (Render & Local Compatible)
+const mongoURI = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/school_db';
+
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB Connected successfully!'))
   .catch((err) => console.error('Database Connection Error:', err));
 
 // Nodemailer Transporter Setup
@@ -363,7 +365,7 @@ app.get('/api/gallery', async (req, res) => {
 app.delete('/api/gallery/:id', async (req, res) => {
   try {
     await Gallery.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Photo successfully delete ho gayi!' });
+    res.json({ message: 'Photo successfully delete ho gaya!' });
   } catch (err) {
     res.status(500).json({ error: 'Delete nahi ho paya' });
   }
@@ -409,8 +411,7 @@ app.get('/', (req, res) => {
   res.send('School Website Backend API Running!');
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`Server started on port ${PORT}`);
 });
-
