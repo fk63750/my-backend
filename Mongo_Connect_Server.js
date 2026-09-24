@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer'); 
+const fs = require('fs');
 const dateTimeModule = require('./Date_And_Time'); // Date and Time module import kiya gaya hai
 
 const app = express();
@@ -9,7 +10,13 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(cors());
-app.use('/uploads', express.static('Admission_Documents_Upload'));
+
+// Folder check & create for uploads
+const uploadDir = 'Admission_Documents_Upload';
+if (!fs.existsSync(uploadDir)){
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadDir));
 
 // MongoDB Connection (Render & Local Compatible)
 const mongoURI = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/school_db';
@@ -93,7 +100,7 @@ const PopupNotice = mongoose.model('PopupNotice', popupSchema);
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'Admission_Documents_Upload/'); 
+    cb(null, uploadDir); 
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
@@ -397,12 +404,12 @@ app.post('/api/announcements', async (req, res) => {
   }
 });
 
-app.delete('/api/announcements/:id', async (req, res) => {
+app.delete('/api/announcements/:id', async (req, mres) => {
   try {
     await Announcement.findByIdAndDelete(req.params.id);
-    res.json({ message: "Announcement deleted successfully!" });
+    mres.json({ message: "Announcement deleted successfully!" });
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete announcement" });
+    mres.status(500).json({ error: "Failed to delete announcement" });
   }
 });
 
