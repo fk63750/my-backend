@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node Mongo_Connect_Server.js"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^18.0.1",
